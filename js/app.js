@@ -1657,6 +1657,43 @@ function resetFormAfterSuccess() {
     clearValidation();
     hideAllBanners();
 
+    // 🔧 FIX: Reset stepper to step 1
+    if (typeof window.stepperNav !== 'undefined' && typeof window.stepperNav.goToStep === 'function') {
+        // Force reset to step 1 by updating currentStep and UI
+        if (window.stepperNav.resetToStep1) {
+            window.stepperNav.resetToStep1();
+        } else {
+            // Fallback: manually reset stepper
+            const stepperModule = window.stepperNav;
+
+            // Reset all step items
+            document.querySelectorAll('.step-item').forEach(stepItem => {
+                stepItem.classList.remove('active', 'completed');
+            });
+
+            // Activate step 1
+            const step1 = document.querySelector('.step-item[data-step="1"]');
+            if (step1) step1.classList.add('active');
+
+            // Show step 1 content
+            document.querySelectorAll('.step-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            const step1Content = document.querySelector('.step-content[data-step-content="1"]');
+            if (step1Content) step1Content.classList.add('active');
+
+            // Update navigation buttons
+            if (stepperModule.updateNavigationButtons) {
+                stepperModule.updateNavigationButtons();
+            }
+
+            console.log('✅ Stepper reset to step 1 (manual fallback)');
+        }
+    }
+
+    // Scroll to top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
     console.log('✅ All state variables reset - Form ready for new entry');
 }
 
@@ -3288,6 +3325,22 @@ function showBanner(message, type) {
     const banner = elements[`${type}Banner`];
     banner.textContent = message;
     banner.style.display = 'block';
+
+    // 🔧 FIX: Auto-hide warning banner after 8 seconds
+    if (type === 'warning') {
+        setTimeout(() => {
+            if (banner && banner.style.display === 'block') {
+                banner.style.transition = 'opacity 0.5s ease-out';
+                banner.style.opacity = '0';
+
+                setTimeout(() => {
+                    banner.style.display = 'none';
+                    banner.style.opacity = '1';
+                    banner.style.transition = '';
+                }, 500);
+            }
+        }, 8000);
+    }
 }
 
 function hideAllBanners() {

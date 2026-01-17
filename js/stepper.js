@@ -1003,11 +1003,49 @@ function resetFormAndStepper() {
     console.log('✅ Form reset complete - Ready for new entry');
 }
 
+/**
+ * 🔧 Reset Stepper to Step 1
+ * Called by app.js after form reset
+ */
+function resetToStep1() {
+    console.log('🔄 resetToStep1 called - Resetting stepper to step 1...');
+
+    // Reset currentStep
+    currentStep = 1;
+
+    // Reset all step items
+    document.querySelectorAll('.step-item').forEach(stepItem => {
+        stepItem.classList.remove('active', 'completed');
+    });
+
+    // Activate step 1
+    const step1 = document.querySelector('.step-item[data-step="1"]');
+    if (step1) step1.classList.add('active');
+
+    // Show step 1 content, hide others
+    document.querySelectorAll('.step-content').forEach(content => {
+        content.classList.remove('active');
+    });
+    const step1Content = document.querySelector('.step-content[data-step-content="1"]');
+    if (step1Content) step1Content.classList.add('active');
+
+    // Reset step lines
+    document.querySelectorAll('.step-line').forEach(line => {
+        line.classList.remove('completed');
+    });
+
+    // Update navigation buttons
+    updateNavigationButtons();
+
+    console.log('✅ Stepper successfully reset to step 1');
+}
+
 // Export functions for use by app.js
 window.stepperNav = {
     getCurrentStep: () => currentStep,
     goToStep: goToStep,
     updateNavigationButtons: updateNavigationButtons,
     setupSuccessDetection: setupSuccessDetection, // Export for app.js to call on submit
+    resetToStep1: resetToStep1, // Export reset function
     formData: formData
 };
