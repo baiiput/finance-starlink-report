@@ -75,11 +75,11 @@
     }
 
     .header {
-        background: var(--bg-gradient);
-        padding: 25px 30px;
-        border-radius: 24px;
+        background: linear-gradient(135deg, rgba(0, 122, 255, 0.8) 0%, rgba(88, 86, 214, 0.8) 50%, rgba(175, 82, 222, 0.8) 100%);
+        padding: 28px 35px;
+        border-radius: 28px;
         margin-bottom: 25px;
-        box-shadow: var(--shadow-lg);
+        box-shadow: 0 12px 48px rgba(0, 122, 255, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.1) inset;
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -87,9 +87,9 @@
         gap: 20px;
         position: relative;
         overflow: hidden;
-        backdrop-filter: blur(40px) saturate(180%);
-        -webkit-backdrop-filter: blur(40px) saturate(180%);
-        border: 1px solid var(--glass-border);
+        backdrop-filter: blur(50px) saturate(200%);
+        -webkit-backdrop-filter: blur(50px) saturate(200%);
+        border: 1px solid rgba(255, 255, 255, 0.25);
         animation: slideInDown 0.6s cubic-bezier(0.4, 0.0, 0.2, 1);
     }
 
@@ -116,10 +116,11 @@
     }
 
     .header h1 {
-        font-size: 28px;
+        font-size: 30px;
         color: white;
         font-weight: 700;
-        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        letter-spacing: -0.5px;
+        text-shadow: 0 2px 12px rgba(0, 0, 0, 0.15), 0 4px 24px rgba(0, 122, 255, 0.2);
         position: relative;
         z-index: 1;
     }
@@ -290,6 +291,7 @@
     .filters-section {
         background: var(--glass-bg);
         padding: 30px;
+        padding-bottom: 40px;
         border-radius: 24px;
         margin-bottom: 25px;
         box-shadow: var(--shadow-lg);
@@ -297,6 +299,8 @@
         backdrop-filter: blur(40px) saturate(180%);
         -webkit-backdrop-filter: blur(40px) saturate(180%);
         border: 1px solid var(--glass-border);
+        overflow: visible;
+        position: relative;
     }
 
     .filter-row {
@@ -416,9 +420,9 @@
         border: 1px solid var(--border-color);
         border-radius: 16px;
         box-shadow: var(--shadow-lg);
-        max-height: 250px;
+        max-height: 280px;
         overflow-y: auto;
-        z-index: 1000;
+        z-index: 9999;
         display: none;
         animation: dropdownFadeIn 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
         backdrop-filter: blur(40px) saturate(180%);
@@ -553,7 +557,10 @@
     
     th.col-client { width: 25%; }
     th.col-date { width: 12%; }
-    th.col-transaction { width: 15%; }
+    th.col-transaction {
+        width: 15%;
+        text-align: center;
+    }
     th.col-kit { width: 10%; }
     th.col-serial { width: 12%; }
     th.col-paket { width: 13%; }
@@ -587,6 +594,10 @@
         font-size: 14px;
         font-weight: 500;
         vertical-align: middle;
+    }
+
+    td.transaction-cell {
+        text-align: center;
     }
 
     .transaction-id {
@@ -1092,7 +1103,7 @@
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td>${row.tanggal}</td>
-                <td class="transaction-id">${row.transactionID}</td>
+                <td class="transaction-cell"><span class="transaction-id">${row.transactionID}</span></td>
                 <td>${row.namaClient}</td>
                 <td>${row.kitNumber}</td>
                 <td>${row.serialNumber}</td>
