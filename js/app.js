@@ -2507,25 +2507,65 @@ function handleValidationSuccess(data) {
     
     if (data.validation.status === 'found') {
         isKitValid = true;
-        availableKits = data.validation.data.allKits || [];
 
-        // 🔧 FIX: Add client name to each KIT object
+        // 🔧 FIX: Support multi-client KIT selection
+        // Instead of replacing, append new KITs to existing ones
+        const newKits = data.validation.data.allKits || [];
         const clientName = data.validation.data.nama;
-        availableKits.forEach(kit => {
+
+        // Add client name to each new KIT
+        newKits.forEach(kit => {
             kit.clientName = clientName;
         });
 
-        elements.clientNameText.textContent = clientName;
-        elements.namaClientDisplay.classList.add('filled');
-        
-        let successMsg = `✅ Client ditemukan! ${data.validation.data.totalKits} KIT tersedia untuk ${data.validation.data.nama}`;
-        if (data.targetFile) {
-            successMsg += ` (Laporan akan disimpan ke: ${data.targetFile})`;
+        // Check if we already have KITs (from previous client selections)
+        if (availableKits.length > 0) {
+            console.log('📦 Adding KITs from new client to existing list...');
+
+            // Get existing KIT numbers to avoid duplicates
+            const existingKitNumbers = new Set(availableKits.map(k => k.kitNumber));
+
+            // Add only new KITs that don't exist yet
+            newKits.forEach(kit => {
+                if (!existingKitNumbers.has(kit.kitNumber)) {
+                    availableKits.push(kit);
+                    console.log(`  ➕ Added KIT: ${kit.kitNumber} from ${clientName}`);
+                } else {
+                    console.log(`  ⚠️ Skipped duplicate KIT: ${kit.kitNumber}`);
+                }
+            });
+
+            console.log(`✅ Total KITs available: ${availableKits.length}`);
+        } else {
+            // First client selection, just use the new KITs
+            availableKits = newKits;
         }
-        
-        console.log('📦 Detailed KIT Information:');
+
+        // Update client name display to show all selected clients
+        const uniqueClientNames = [...new Set(availableKits.map(kit => kit.clientName))];
+        if (uniqueClientNames.length === 1) {
+            elements.clientNameText.textContent = uniqueClientNames[0];
+        } else {
+            elements.clientNameText.textContent = `${uniqueClientNames.length} clients (${uniqueClientNames.join(', ')})`;
+        }
+        elements.namaClientDisplay.classList.add('filled');
+
+        // Update success message to show added KITs vs total available
+        const newKitsAdded = newKits.filter(kit =>
+            !availableKits.some(existing => existing.kitNumber === kit.kitNumber && existing !== kit)
+        ).length;
+
+        let successMsg = `✅ Client ditemukan! ${newKitsAdded} KIT ditambahkan dari ${clientName}`;
+        if (availableKits.length > newKitsAdded) {
+            successMsg += ` (Total: ${availableKits.length} KIT dari beberapa client)`;
+        }
+        if (data.targetFile) {
+            successMsg += ` | Laporan: ${data.targetFile}`;
+        }
+
+        console.log('📦 All Available KITs:');
         availableKits.forEach((kit, index) => {
-            console.log(`  ${index + 1}. KIT: ${kit.kitNumber} | Serial: ${kit.serialNumber || 'N/A'} | Paket: ${kit.paket}`);
+            console.log(`  ${index + 1}. KIT: ${kit.kitNumber} | Client: ${kit.clientName} | Serial: ${kit.serialNumber || 'N/A'} | Paket: ${kit.paket}`);
         });
         
         showValidationMessage(successMsg, 'success');
