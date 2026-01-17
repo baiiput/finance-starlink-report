@@ -2109,6 +2109,7 @@ input[name="tanggalPembayaran"]:focus {
 .client-name-searchable {
     position: relative;
     width: 100%;
+    z-index: 100;
 }
 
 .client-search-input-container {
@@ -2167,12 +2168,12 @@ input[name="tanggalPembayaran"]:focus {
     background: #1e293b;
     border: 2px solid #8b5cf6;
     border-radius: 12px;
-    box-shadow: 
+    box-shadow:
         0 20px 40px rgba(0, 0, 0, 0.4),
         0 0 0 1px rgba(139, 92, 246, 0.1),
         0 0 20px rgba(139, 92, 246, 0.2);
-    z-index: 1000;
-    max-height: 300px;
+    z-index: 9999;
+    max-height: 400px;
     overflow: hidden;
     opacity: 0;
     visibility: hidden;
@@ -2196,7 +2197,7 @@ input[name="tanggalPembayaran"]:focus {
 }
 
 .search-results-list {
-    max-height: 240px;
+    max-height: 340px;
     overflow-y: auto;
     overflow-x: hidden;
 }
@@ -2326,17 +2327,18 @@ input[name="tanggalPembayaran"]:focus {
         border-radius: 6px;
         min-height: 44px;
     }
-    
+
     .search-dropdown-arrow {
         right: 12px;
     }
-    
+
     .client-search-results {
-        max-height: 250px;
+        max-height: 350px;
+        z-index: 9999;
     }
-    
+
     .search-results-list {
-        max-height: 190px;
+        max-height: 290px;
     }
     
     .search-result-item {

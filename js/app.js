@@ -2508,8 +2508,14 @@ function handleValidationSuccess(data) {
     if (data.validation.status === 'found') {
         isKitValid = true;
         availableKits = data.validation.data.allKits || [];
-        
-        elements.clientNameText.textContent = data.validation.data.nama;
+
+        // 🔧 FIX: Add client name to each KIT object
+        const clientName = data.validation.data.nama;
+        availableKits.forEach(kit => {
+            kit.clientName = clientName;
+        });
+
+        elements.clientNameText.textContent = clientName;
         elements.namaClientDisplay.classList.add('filled');
         
         let successMsg = `✅ Client ditemukan! ${data.validation.data.totalKits} KIT tersedia untuk ${data.validation.data.nama}`;
@@ -2528,7 +2534,7 @@ function handleValidationSuccess(data) {
             if (elements.kitValidation.classList.contains('validation-success')) {
                 elements.kitValidation.style.transition = 'opacity 0.5s ease-out';
                 elements.kitValidation.style.opacity = '0';
-                
+
                 setTimeout(() => {
                     elements.kitValidation.style.display = 'none';
                     elements.kitValidation.style.opacity = '1';
@@ -2536,34 +2542,25 @@ function handleValidationSuccess(data) {
                 }, 500);
             }
         }, 5000);
-        
-        showKitSelection();
-        
-        // Update stepper navigation buttons after client name is set
-        if (typeof window.stepperNav !== 'undefined' && typeof window.stepperNav.updateNavigationButtons === 'function') {
-            setTimeout(() => {
-                window.stepperNav.updateNavigationButtons();
-                console.log('🔄 Stepper navigation buttons updated after client name set');
-            }, 100);
-        }
-        
+
         if (data.validation.warning) {
             console.log('⚠️ Validation warning:', data.validation.warning);
             showBanner(data.validation.warning, 'warning');
         }
-        
+
+        // 🔧 FIX: Check and mark duplicates BEFORE showing KIT selection
         console.log('🔍 CHECKING DUPLICATES...');
-        if (data.duplicate && 
-            data.duplicate.hasDuplicate && 
-            data.duplicate.duplicateKits && 
+        if (data.duplicate &&
+            data.duplicate.hasDuplicate &&
+            data.duplicate.duplicateKits &&
             data.duplicate.duplicateKits.length > 0) {
-            
+
             const duplicateList = data.duplicate.duplicateKits.join(', ');
             const warningMessage = `⚠️ DUPLICATE WARNING: KIT berikut sudah ada di laporan: ${duplicateList}. Anda masih bisa melanjutkan jika ini pembayaran tambahan/cicilan.`;
-            
+
             console.log('🚨 SHOWING DUPLICATE WARNING:', warningMessage);
             showBanner(warningMessage, 'warning');
-            
+
             availableKits.forEach(kit => {
                 if (data.duplicate.duplicateKits.includes(kit.kitNumber)) {
                     kit.isDuplicate = true;
@@ -2571,8 +2568,19 @@ function handleValidationSuccess(data) {
                 }
             });
         }
-        
+
         selectedKits = availableKits.filter(kit => kit.isSelected);
+
+        // Show KIT selection AFTER duplicate marking
+        showKitSelection();
+
+        // Update stepper navigation buttons after client name is set
+        if (typeof window.stepperNav !== 'undefined' && typeof window.stepperNav.updateNavigationButtons === 'function') {
+            setTimeout(() => {
+                window.stepperNav.updateNavigationButtons();
+                console.log('🔄 Stepper navigation buttons updated after client name set');
+            }, 100);
+        }
         
     } else if (data.validation.status === 'not_found') {
         isKitValid = false;
