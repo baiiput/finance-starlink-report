@@ -100,7 +100,7 @@ function generateTransactionID(tanggal, month, year) {
     // 🔧 FIX: Changed format from DDMMYYYY to DD-MM-YYYY
     var datePrefix = day + '-' + monthStr + '-' + yearStr;
 
-    Logger.log('🔍 Looking for existing Transaction IDs with date: ' + datePrefix);
+    Logger.log('🔍 Looking for existing Transaction IDs in month: ' + monthStr + '/' + yearStr + ' (resets monthly)');
 
     var reportSpreadsheet = getReportSpreadsheet();
     var sheetName = monthStr + '_' + yearStr;
@@ -116,8 +116,14 @@ function generateTransactionID(tanggal, month, year) {
 
         if (existingTransactionID) {
           var idString = existingTransactionID.toString().trim();
-          // 🔧 FIX: Updated regex to match new format SL/DD-MM-YYYY/XXX
-          var monthPattern = new RegExp('^SL\\/\\d{2}-' + monthStr + '-' + yearStr + '\\/\\d{3}$');
+
+          // 🔧 FIX: Match BOTH old and new format for backward compatibility
+          // Old format: SL/DDMMYYYY/XXX (e.g., SL/20012026/241)
+          // New format: SL/DD-MM-YYYY/XXX (e.g., SL/20-01-2026/241)
+          // Both reset every month (not every day)
+          var oldFormatPattern = '^SL\\/\\d{2}' + monthStr + yearStr + '\\/\\d{3}$';
+          var newFormatPattern = '^SL\\/\\d{2}-' + monthStr + '-' + yearStr + '\\/\\d{3}$';
+          var monthPattern = new RegExp('(' + oldFormatPattern + ')|(' + newFormatPattern + ')');
 
           if (monthPattern.test(idString)) {
             var parts = idString.split('/');
@@ -134,6 +140,9 @@ function generateTransactionID(tanggal, month, year) {
       if (sameDateTransactions.length > 0) {
         var maxIncrement = Math.max.apply(Math, sameDateTransactions);
         increment = maxIncrement + 1;
+        Logger.log('📊 Found ' + sameDateTransactions.length + ' existing transactions in this month. Next increment: ' + increment);
+      } else {
+        Logger.log('📊 No existing transactions found in this month. Starting from: 001');
       }
     }
 
