@@ -97,26 +97,28 @@ function generateTransactionID(tanggal, month, year) {
     var day = tanggal.getDate().toString().padStart(2, '0');
     var monthStr = month.toString().padStart(2, '0');
     var yearStr = year.toString();
-    var datePrefix = day + monthStr + yearStr;
-    
+    // 🔧 FIX: Changed format from DDMMYYYY to DD-MM-YYYY
+    var datePrefix = day + '-' + monthStr + '-' + yearStr;
+
     Logger.log('🔍 Looking for existing Transaction IDs with date: ' + datePrefix);
-    
+
     var reportSpreadsheet = getReportSpreadsheet();
     var sheetName = monthStr + '_' + yearStr;
     var sheet = reportSpreadsheet.getSheetByName(sheetName);
     var increment = 1;
-    
+
     if (sheet) {
       var data = sheet.getDataRange().getValues();
       var sameDateTransactions = [];
-      
+
       for (var i = 1; i < data.length; i++) {
         var existingTransactionID = data[i][2]; // Kolom C: Transaction ID
-        
+
         if (existingTransactionID) {
           var idString = existingTransactionID.toString().trim();
-          var monthPattern = new RegExp('^SL\\/\\d{2}' + monthStr + yearStr + '\\/\\d{3}$');
-          
+          // 🔧 FIX: Updated regex to match new format SL/DD-MM-YYYY/XXX
+          var monthPattern = new RegExp('^SL\\/\\d{2}-' + monthStr + '-' + yearStr + '\\/\\d{3}$');
+
           if (monthPattern.test(idString)) {
             var parts = idString.split('/');
             if (parts.length === 3) {
@@ -128,17 +130,17 @@ function generateTransactionID(tanggal, month, year) {
           }
         }
       }
-      
+
       if (sameDateTransactions.length > 0) {
         var maxIncrement = Math.max.apply(Math, sameDateTransactions);
         increment = maxIncrement + 1;
       }
     }
-    
+
     var transactionID = 'SL/' + datePrefix + '/' + increment.toString().padStart(3, '0');
     Logger.log('✅ Generated Transaction ID: ' + transactionID);
     return transactionID;
-    
+
   } catch (error) {
     Logger.log('❌ Error generating transaction ID: ' + error.message);
     var timestamp = new Date().getTime().toString().slice(-6);
